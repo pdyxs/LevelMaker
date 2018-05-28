@@ -1,0 +1,10 @@
+{
+    "name": "LevelMakerEditor",
+    "references": [
+        "LevelMaker"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}

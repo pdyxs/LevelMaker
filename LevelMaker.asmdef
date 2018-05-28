@@ -1,0 +1,10 @@
+{
+    "name": "LevelMaker",
+    "references": [
+        "ThingSpawner",
+        "EventWrappers",
+        "UnityUitilities"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": []
+}

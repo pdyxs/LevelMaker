@@ -41,7 +41,7 @@ public abstract class LevelActorBase<TLevel> :
 		level = ScriptableObject.CreateInstance<TLevel>();
 		level.Create(this);
 #if UNITY_EDITOR
-		AssetDatabase.CreateAsset(level, $"{filepath}{levelName}{Level.extension}");
+		UnityEditor.AssetDatabase.CreateAsset(level, $"{filepath}{levelName}{Level.extension}");
 #endif
 		return level;
 	}

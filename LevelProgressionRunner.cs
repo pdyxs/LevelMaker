@@ -41,6 +41,8 @@ public class LevelProgressionRunner :
 				actor.Get(this).Load(level);
 				return;
 			}
+#else
+			nextLevel = 0;
 #endif
 			if (HasNext())
 			{
@@ -51,12 +53,20 @@ public class LevelProgressionRunner :
 
 	public bool HasNext()
 	{
-		return progression.levels?.Count > nextLevel;
+		return 
+#if UNITY_EDITOR
+			loadFrom == LoadTarget.Progression &&
+#endif		
+			progression.levels?.Count > nextLevel;
 	}
 
 	public void LoadNext()
 	{
-		if (progression != null)
+		if (progression != null
+#if UNITY_EDITOR
+				&& loadFrom == LoadTarget.Progression
+#endif
+		    )
 		{
 			actor.Get(this).Load(progression.levels[nextLevel]);
 			nextLevel++;

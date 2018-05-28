@@ -49,12 +49,40 @@ public class LevelProgressionRunnerEditor :
 		switch (runner.loadFrom)
 		{
 			case LevelProgressionRunner.LoadTarget.Level:
-				DrawLevelChooser();
+				DrawFileLevelChooser();
 				break;
+			case LevelProgressionRunner.LoadTarget.Progression:
+				DrawProgressionLevelChooser();
+				break;
+		}
+		
+		if (Application.isPlaying && actor.hasLevel)
+		{
+			if (GUILayout.Button("Save Level"))
+			{
+				actor.Save();
+			}
 		}
 	}
 
-	private void DrawLevelChooser()
+	private void DrawProgressionLevelChooser()
+	{
+		if (!Application.isPlaying)
+		{
+			if (runner.progression != null)
+			{
+				if (runner.level == null) runner.level = null;
+				var array = runner.progression.levels.ToArray();
+				runner.nextLevel = EditorGUILayout.Popup(
+					"Level",
+					runner.nextLevel,
+					System.Array.ConvertAll(array, (a) => a.name)
+				);
+			}
+		}
+	}
+
+	private void DrawFileLevelChooser()
 	{
 		if (fileNames != null)
 		{
@@ -108,14 +136,6 @@ public class LevelProgressionRunnerEditor :
 				}
 	
 				GUI.enabled = true;
-			}
-
-			if (Application.isPlaying && actor.hasLevel)
-			{
-				if (GUILayout.Button("Save Level"))
-				{
-					actor.Save();
-				}
 			}
 		}
 	}

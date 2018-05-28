@@ -1,7 +1,8 @@
 {
     "name": "LevelMakerEditor",
     "references": [
-        "LevelMaker"
+        "LevelMaker",
+        "UnityUitilities"
     ],
     "includePlatforms": [
         "Editor"

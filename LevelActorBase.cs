@@ -3,29 +3,33 @@ using System.Collections.Generic;
 using PDYXS.ThingSpawner;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 
 [System.Serializable]
-public class LevelActorReference: ObjectReference<LevelActorBase> {}
+public class LevelActorReference: ObjectReference<ILevelActor> {}
 
-public abstract class LevelActorBase :
-	MonoBehaviour
+public interface ILevelActor
 {
-	public abstract string filepath { get; }
-	public const string extension = ".asset";
+	bool hasLevel { get; }
 
-	[SerializeField] private PrefabSaver prefabSaver;
-
-	[HideInInspector] public string currentLevel;
-
-	public abstract void Load();
-	public abstract void Clear();
+	Level Create(string levelName, string filepath);
+	void Load(Level l);
+	void Clear();
+	
+#if UNITY_EDITOR
+	void Save();
+#endif
 }
 
 public abstract class LevelActorBase<TLevel> :
-	LevelActorBase
+	MonoBehaviour, ILevelActor
 	where TLevel : Level
 {
+	[SerializeField] private PrefabSaver prefabSaver;
+	
 	public TLevel level { get; private set; }
+
+	public bool hasLevel => level != null;
 
 #if UNITY_EDITOR
 	public void Save() {
@@ -33,27 +37,43 @@ public abstract class LevelActorBase<TLevel> :
 	}
 #endif
 
-	public void Create(string levelName) {
+	public Level Create(string levelName, string filepath) {
 		Clear();
 		level = ScriptableObject.CreateInstance<TLevel>();
 		level.Create(this);
 #if UNITY_EDITOR
-		AssetDatabase.CreateAsset(level, $"{filepath}{levelName}{extension}");
+		AssetDatabase.CreateAsset(level, $"{filepath}{levelName}{Level.extension}");
 #endif
+		return level;
+	}
+	
+	public UnityEvent OnLevelLoaded = new UnityEvent();
+
+	public void Load(Level level)
+	{
+		
+		var l = level as TLevel;
+		if (l != null)
+		{
+			StartCoroutine(WaitToLoad(l));
+		}
 	}
 
-	public override void Load() {
+	public IEnumerator WaitToLoad(TLevel level)
+	{
 		Clear();
-		level = Resources.Load<TLevel>(currentLevel);
+		yield return new WaitForEndOfFrame();
+		this.level = level;
 		level.Load(this);
 
 		if (Application.isPlaying)
 		{
 			doInitialise();
 		}
+		OnLevelLoaded.Invoke();
 	}
 
-	public override void Clear()
+	public void Clear()
 	{
 		if (level != null)
 		{

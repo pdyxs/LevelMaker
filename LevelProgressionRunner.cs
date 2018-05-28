@@ -8,19 +8,44 @@ public class LevelProgressionRunnerReference : ObjectReference<LevelProgressionR
 public class LevelProgressionRunner : 
 	MonoBehaviour
 {
-	public LevelProgression progression;
-
+	
 	public LevelActorReference actor;
+	
+	public LevelProgression progression;
+	
+	[Header("Level Loading")]
+	public string filepath;
 
 	public bool LoadOnAwake;
+	
+	public enum LoadTarget
+	{
+		Progression,
+		Level
+	}
 
+	public LoadTarget loadFrom;
+	[HideInInspector]
 	public int nextLevel = 0;
+	
+	[HideInInspector]
+	public Level level;
 
 	private void Awake()
 	{
-		if (LoadOnAwake && HasNext())
+		if (LoadOnAwake)
 		{
-			LoadNext();
+#if UNITY_EDITOR
+			if (loadFrom == LoadTarget.Level && level != null)
+			{
+				actor.Get(this).Load(level);
+				return;
+			}
+#endif
+			if (HasNext())
+			{
+				LoadNext();
+			}
 		}
 	}
 
@@ -33,8 +58,7 @@ public class LevelProgressionRunner :
 	{
 		if (progression != null)
 		{
-			actor.Get(this).currentLevel = progression.levels[nextLevel].name;
-			actor.Get(this).Load();
+			actor.Get(this).Load(progression.levels[nextLevel]);
 			nextLevel++;
 		}
 	}

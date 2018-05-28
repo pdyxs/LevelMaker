@@ -5,23 +5,25 @@ using UnityEngine;
 public abstract class Level : 
 	ScriptableObject
 {
-	protected LevelActorBase _actor { get; private set; }
+	public const string extension = ".asset";
+	
+	protected ILevelActor _actor { get; private set; }
 	
 	public void Save() {
 		UpdateFromActor();
 	}
 
-	public void Load(LevelActorBase actor)
+	public void Load(ILevelActor actor)
 	{
 		this._actor = actor;
 		UpdateActor();
 	}
 
-	public void Create(LevelActorBase actor)
+	public void Create(ILevelActor actor)
 	{
 		this._actor = actor;
 		doInitialise();
-		UpdateFromActor();
+		if (Application.isPlaying) UpdateFromActor();
 	}
 
 	public void Clear()
@@ -37,7 +39,7 @@ public abstract class Level :
 
 public abstract class Level<TActor> :
 	Level
-	where TActor : LevelActorBase
+	where TActor : MonoBehaviour, ILevelActor
 {
 	public TActor actor => _actor as TActor;
 }
